@@ -35,7 +35,7 @@ objects:
       sourceStrategy:
         from:
           kind: ImageStreamTag
-          name: 'openshift/apicast-gateway:2.2.0.GA'
+          name: 'apicast-gateway:2.2.0.GA'
 
 - apiVersion: v1
   kind: BuildConfig
