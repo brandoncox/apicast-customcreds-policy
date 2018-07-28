@@ -24,7 +24,7 @@ objects:
     output:
       to:
         kind: ImageStreamTag
-        name: apicast-policy:customsoap
+        name: apicast-customsoap-policy:soap
     source:
       git:
         uri: https://github.com/brandoncox/apicast-customsoap-policy.git
