@@ -36,6 +36,7 @@ objects:
         from:
           kind: ImageStreamTag
           name: 'apicast-gateway:2.2.0.GA'
+          namespace: openshift
 
 - apiVersion: v1
   kind: BuildConfig
