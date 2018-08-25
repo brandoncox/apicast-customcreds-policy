@@ -62,9 +62,13 @@ function _M:rewrite(context)
   result2 = result[2]
   print(result2)
   decoded_header = dec(result2)
-  userkey = split(decoded_headers,":")[1]
+  result3 = {};
+  for match1 in (decoded_header..':'):gmatch("(.-)"..':') do
+      table.insert(result3, match1);
+  end
+  --userkey = split(decoded_headers,":")[1]
 
-  print(userkey)
+  print(result3[1])
   print("---------------END _M:rewrite()---------------")
   -- change the request before it reaches upstream
 end
