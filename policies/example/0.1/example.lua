@@ -51,7 +51,7 @@ function _M:rewrite(context)
   print("---------------Inside _M:rewrite()---------------")
   local headers = ngx.req.get_headers() or {}
   local basic_headers = split(headers['Authorization'], ' ')[2]
-  local decoded_header = decode(basic_headers)
+  local decoded_header = dec(basic_headers)
   local userkey = split(decoded_headers,":")[1]
 
   print(userkey)
