@@ -1,4 +1,4 @@
 #!/bin/sh
 
 echo "---> Copying policy source..."
-cp -Rf /tmp/src/. ./src/policies/
+cp -Rf /tmp/src/. ./src/
