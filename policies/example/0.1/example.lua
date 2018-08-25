@@ -5,13 +5,14 @@ local mt = { __index = _M }
 
 function _M.new()
   print("---------------INSIDE _M.new()--------------")
-  print(mt)
+  debug.debug ()
   print("---------------END _M.new()--------------")
   return setmetatable({}, mt)
 end
 
 function _M:init()
   print("--------------- Inside _M:init()---------------")
+  debug.debug ()
   print("--------------- END _M:init()---------------")
   -- do work when nginx master process starts
 end
@@ -24,6 +25,7 @@ end
 
 function _M:rewrite()
   print("---------------Inside _M:rewrite()---------------")
+  debug.debug ()
   print("---------------END _M:rewrite()---------------")
   -- change the request before it reaches upstream
 end
@@ -66,8 +68,8 @@ end
 function _M:log()
   -- can do extra logging
   print("logging mt")
-  print(setmetatable)
-  
+
+
 end
 
 function _M:balancer()
