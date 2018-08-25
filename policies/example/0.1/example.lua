@@ -24,7 +24,7 @@ end
 function _M:rewrite(context)
   print("---------------Inside _M:rewrite()---------------")
   local headers = ngx.req.get_headers() or {}
-  print(headers)
+  print(headers['Authorization'])
   print("---------------END _M:rewrite()---------------")
   -- change the request before it reaches upstream
 end
