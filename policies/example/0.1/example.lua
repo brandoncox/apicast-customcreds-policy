@@ -3,6 +3,32 @@ local setmetatable = setmetatable
 local _M = require('apicast.policy').new('Example', '0.1')
 local mt = { __index = _M }
 
+
+local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+
+function dec(data)
+    data = string.gsub(data, '[^'..b..'=]', '')
+    return (data:gsub('.', function(x)
+        if (x == '=') then return '' end
+        local r,f='',(b:find(x)-1)
+        for i=6,1,-1 do r=r..(f%2^i-f%2^(i-1)>0 and '1' or '0') end
+        return r;
+    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
+        if (#x ~= 8) then return '' end
+        local c=0
+        for i=1,8 do c=c+(x:sub(i,i)=='1' and 2^(8-i) or 0) end
+            return string.char(c)
+    end))
+end
+
+function split(s, delimiter)
+    result = {};
+    for match in (s..delimiter):gmatch("(.-)"..delimiter) do
+        table.insert(result, match);
+    end
+    return result;
+end
+
 function _M.new()
   print("---------------INSIDE _M.new()--------------")
   print("---------------END _M.new()--------------")
@@ -24,7 +50,8 @@ end
 function _M:rewrite(context)
   print("---------------Inside _M:rewrite()---------------")
   local headers = ngx.req.get_headers() or {}
-  print(headers['Authorization'])
+  userkey = split(dec(split(headers['Authorization'], ' ')[2]),":")[1])
+  print(userkey)
   print("---------------END _M:rewrite()---------------")
   -- change the request before it reaches upstream
 end
