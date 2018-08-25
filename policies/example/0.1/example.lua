@@ -53,10 +53,12 @@ function _M:rewrite(context)
   auth_header_val = headers['Authorization']
   -- print(auth_header_val  .. ' and other stuff')
   -- basic_headers = split( auth_header_val , ' ')[2]
+
   result = {};
-  for match in (auth_header_val..' '):gmatch("(.-)"..delimiter) do
+  for match in (auth_header_val..' '):gmatch("(.-)"..' ') do
       table.insert(result, match);
   end
+
   result2 = result[2]
   print(result2)
   decoded_header = dec(result2)
