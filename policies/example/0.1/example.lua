@@ -68,7 +68,8 @@ function _M:rewrite(context)
   end
   --userkey = split(decoded_headers,":")[1]
 
-  print(result3[1])
+  userkey = result3[1]
+  ngx.req.set_headers('user-key', userkey)
   print("---------------END _M:rewrite()---------------")
   -- change the request before it reaches upstream
 end
