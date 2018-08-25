@@ -2,10 +2,10 @@ local setmetatable = setmetatable
 
 local _M = require('apicast.policy').new('Example', '0.1')
 local mt = { __index = _M }
+local debug = require('debug')
 
 function _M.new()
   print("---------------INSIDE _M.new()--------------")
-  debug.debug ()
   print("---------------END _M.new()--------------")
   return setmetatable({}, mt)
 end
