@@ -67,7 +67,7 @@ function _M:log()
   -- can do extra logging
   print("logging mt")
   print(setmetatable)
-  )
+  
 end
 
 function _M:balancer()
