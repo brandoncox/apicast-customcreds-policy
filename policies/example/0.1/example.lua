@@ -6,7 +6,7 @@ local mt = { __index = _M }
 
 local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 
-local function dec(data)
+function dec(data)
     data = string.gsub(data, '[^'..b..'=]', '')
     return (data:gsub('.', function(x)
         if (x == '=') then return '' end
@@ -21,7 +21,7 @@ local function dec(data)
     end))
 end
 
-local function split(s, delimiter)
+function split(s, delimiter)
     result = {};
     for match in (s..delimiter):gmatch("(.-)"..delimiter) do
         table.insert(result, match);
@@ -51,10 +51,16 @@ function _M:rewrite(context)
   print("---------------Inside _M:rewrite()---------------")
   local headers = ngx.req.get_headers() or {}
   auth_header_val = headers['Authorization']
-  print(auth_header_val  .. ' and other stuff')
-  basic_headers = self.split( auth_header_val , ' ')[2]
-  decoded_header = self.dec(basic_headers)
-  userkey = self.split(decoded_headers,":")[1]
+  -- print(auth_header_val  .. ' and other stuff')
+  -- basic_headers = split( auth_header_val , ' ')[2]
+  result = {};
+  for match in (auth_header_val..' '):gmatch("(.-)"..delimiter) do
+      table.insert(result, match);
+  end
+  result2 = result[2]
+  print(result2)
+  decoded_header = dec(result2)
+  userkey = split(decoded_headers,":")[1]
 
   print(userkey)
   print("---------------END _M:rewrite()---------------")
