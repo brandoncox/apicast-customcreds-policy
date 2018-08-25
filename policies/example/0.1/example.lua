@@ -2,7 +2,6 @@ local setmetatable = setmetatable
 
 local _M = require('apicast.policy').new('Example', '0.1')
 local mt = { __index = _M }
-local debug = require('debug')
 
 function _M.new()
   print("---------------INSIDE _M.new()--------------")
@@ -12,7 +11,6 @@ end
 
 function _M:init()
   print("--------------- Inside _M:init()---------------")
-  debug.debug ()
   print("--------------- END _M:init()---------------")
   -- do work when nginx master process starts
 end
@@ -23,10 +21,9 @@ function _M:init_worker()
   -- do work when nginx worker process is forked from master
 end
 
-function _M:rewrite()
-  local host = ngx.var
+function _M:rewrite(context)
   print("---------------Inside _M:rewrite()---------------")
-  print(host)
+  print(context)
   print("---------------END _M:rewrite()---------------")
   -- change the request before it reaches upstream
 end
