@@ -1,80 +1,95 @@
+local balancer = require('apicast.balancer')
+
+local math = math
 local setmetatable = setmetatable
+local assert = assert
 
-local _M = require('apicast.policy').new('Example', '0.1')
-local mt = { __index = _M }
-local debug = require('debug')
+local user_agent = require('apicast.user_agent')
 
+local _M = require('apicast.policy').new('Example', '0.1'))
+
+local mt = {
+  __index = _M
+}
+
+--- This is called when APIcast boots the master process.
 function _M.new()
-  print("---------------INSIDE _M.new()--------------")
-  print("---------------END _M.new()--------------")
-  return setmetatable({}, mt)
+  return setmetatable({
+  }, mt)
 end
 
-function _M:init()
-  print("--------------- Inside _M:init()---------------")
-  debug.debug ()
-  print("--------------- END _M:init()---------------")
-  -- do work when nginx master process starts
+function _M.init()
+  user_agent.cache()
+
+  math.randomseed(ngx.now())
+  -- First calls to math.random after a randomseed tend to be similar; discard them
+  for _=1,3 do math.random() end
 end
 
-function _M:init_worker()
-  print("---------------Inside _M:init_worker()---------------")
-  print("---------------END _M:init_worker()---------------")
-  -- do work when nginx worker process is forked from master
+function _M.cleanup()
+  -- now abort all the "light threads" running in the current request handler
+  ngx.exit(499)
 end
 
-function _M:rewrite()
-  print("---------------Inside _M:rewrite()---------------")
-  debug.debug ()
-  print("---------------END _M:rewrite()---------------")
-  -- change the request before it reaches upstream
+function _M:rewrite(context)
+  ngx.on_abort(self.cleanup)
+
+  -- load configuration if not configured
+  -- that is useful when lua_code_cache is off
+  -- because the module is reloaded and has to be configured again
+
+  local p = context.proxy
+
+  if context.cache_handler then
+    p.cache_handler = context.cache_handler
+  end
+
+  local service = context.service
+
+  if service then
+    ngx.ctx.service = service
+
+    -- it is possible that proxy:rewrite will terminate the request
+    p:rewrite(service, context)
+  end
+
+  context[self] = p.get_upstream(service)
+
+  ngx.ctx.proxy = p
 end
 
-function _M:access()
-  print("---------------Inside _M:access()---------------")
-  print("---------------END _M:access()---------------")
-  -- ability to deny the request before it is sent upstream
+function _M:post_action(context)
+  if context.skip_apicast_post_action then return end
+
+  local p = context and context.proxy or ngx.ctx.proxy or self.proxy
+
+  if p then
+    return p:post_action(context)
+  else
+    ngx.log(ngx.ERR, 'could not find proxy for request')
+    return nil, 'no proxy for request'
+  end
 end
 
-function _M:content()
-  print("Inside _M:content()")
-  print("---------------Inside _M:content()---------------")
-  print("---------------END _M:content()---------------")
-  -- can create content instead of connecting to upstream
+function _M:access(context)
+  if context.skip_apicast_access then return end
+
+  local ctx = ngx.ctx
+  local p = context and context.proxy or ctx.proxy or self.proxy
+
+  if p then
+    return p:access(context.service, context.usage, context.credentials, context.ttl)
+  end
 end
 
-function _M:post_action()
-  print("---------------Inside _M:post_action()---------------")
-  print("---------------END _M:post_action()---------------")
-  print("Inside _M:post_action()")
-  -- do something after the response was sent to the client
+function _M:content(context)
+  local upstream = assert(context[self], 'missing upstream')
+
+  if upstream then
+    upstream:call(context)
+  end
 end
 
-function _M:header_filter()
-  print("Inside _M:header_filter()")
-  print("---------------Inside _M:header_filter()---------------")
-  print("---------------END _M:header_filter()---------------")
-  -- can change response headers
-end
-
-function _M:body_filter()
-  -- can read and change response body
-  -- https://github.com/openresty/lua-nginx-module/blob/master/README.markdown#body_filter_by_lua
-  print("Inside _M:body_filter()")
-  print("---------------Inside _M:body_filter()---------------")
-  print("---------------End _M:body_filter()---------------")
-end
-
-function _M:log()
-  -- can do extra logging
-  print("logging mt")
-
-
-end
-
-function _M:balancer()
-  -- use for example require('resty.balancer.round_robin').call to do load balancing
-  print("Hello World from _M:balancer()")
-end
+_M.balancer = balancer.call
 
 return _M
